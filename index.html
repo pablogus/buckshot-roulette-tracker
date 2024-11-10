@@ -87,12 +87,9 @@
 
 <!-- Controls for Transparency Toggle -->
 <div class="bullet-status">
-    <button onclick="toggleTransparency('blank')" style="background-color: blue;">Blank Transparency</button>
-    <button onclick="toggleTransparency('live')" style="background-color: red;">Live Transparency</button>
+    <button onclick="toggleTransparency('blank')" style="background-color: blue;">Blank</button>
+    <button onclick="toggleTransparency('live')" style="background-color: red;">Live</button>
 </div>
-
-<!-- Turn Button -->
-<button id="next-turn" onclick="takeTurn()" disabled>Next Turn</button>
 
 <script>
     let liveBullets, blankBullets, chamber, rounds, gameOver, shotsFired;
@@ -120,30 +117,6 @@
         
         updateChamberDisplay();
         document.getElementById('round-info').textContent = `Round 1: Shot the first chamber.`;
-        document.getElementById('next-turn').disabled = false;
-    }
-
-    // Function to simulate a shot taken by a player
-    function takeTurn() {
-        if (gameOver) return;
-
-        let shotChamber = rounds % chamber.length;
-        let shot = chamber[shotChamber];
-        shotsFired.push({ chamber: shotChamber + 1, shot });
-        
-        if (shot === 1) {
-            document.getElementById('round-info').textContent = `Shot a live bullet at chamber ${shotChamber + 1}! Game Over!`;
-            gameOver = true;
-        } else {
-            document.getElementById('round-info').textContent = `Round ${rounds + 1}: Shot a blank at chamber ${shotChamber + 1}.`;
-        }
-
-        updateChamberDisplay();
-        
-        rounds++;
-        if (rounds >= chamber.length) {
-            document.getElementById('next-turn').disabled = true;
-        }
     }
 
     // Function to toggle transparency for the next non-transparent bullet of the specified type
