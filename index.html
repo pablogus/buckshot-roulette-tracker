@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buckshot Roulette</title>
+    <title>Buckshot Roulette Tracker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
         h1 {
             text-align: center;
         }
-        .game-info, .turn-info, .bullet-status {
+        .game-info, .turn-info {
             margin: 20px 0;
             padding: 10px;
             background-color: #e3e3e3;
@@ -28,9 +28,6 @@
             border: none;
             border-radius: 5px;
             margin-right: 10px;
-        }
-        button:disabled {
-            background-color: #888;
         }
         .chamber-container {
             display: flex;
@@ -53,8 +50,22 @@
         .live {
             background-color: red;
         }
-        .transparent {
-            opacity: 0.3; /* Makes the bullet transparent */
+        .indicator {
+            width: 50px; /* Matching bullet size */
+            height: 50px; /* Matching bullet size */
+            margin-top: 20px; /* Increased separation */
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .indicator.white {
+            background-color: white;
+        }
+        .indicator.red {
+            background-color: red;
+        }
+        .indicator.blue {
+            background-color: blue;
         }
     </style>
 </head>
@@ -82,17 +93,11 @@
 
 <!-- Bullet Representation -->
 <div class="chamber-container" id="chamber-container">
-    <!-- Bullet chambers will be dynamically added here -->
-</div>
-
-<!-- Controls for Transparency Toggle -->
-<div class="bullet-status">
-    <button onclick="toggleTransparency('blank')" style="background-color: blue;">Blank</button>
-    <button onclick="toggleTransparency('live')" style="background-color: red;">Live</button>
+    <!-- Bullet chambers and indicators will be dynamically added here -->
 </div>
 
 <script>
-    let liveBullets, blankBullets, chamber, rounds, gameOver, shotsFired;
+    let liveBullets, blankBullets, chamber;
 
     // Function to initialize and start the game
     function startGame() {
@@ -106,48 +111,53 @@
             return;
         }
 
+        // Reset and fill chamber with ordered bullets (red first, then blue)
         chamber = [];
-        for (let i = 0; i < liveBullets; i++) chamber.push(1);
-        for (let i = 0; i < blankBullets; i++) chamber.push(0);
-        chamber = shuffleArray(chamber);
-        
-        rounds = 0;
-        gameOver = false;
-        shotsFired = [];
+        for (let i = 0; i < liveBullets; i++) chamber.push(1); // Red bullets
+        for (let i = 0; i < blankBullets; i++) chamber.push(0); // Blue bullets
         
         updateChamberDisplay();
-        document.getElementById('round-info').textContent = `Round 1: Shot the first chamber.`;
+        document.getElementById('round-info').textContent = `Game started! Click indicators to change their colors.`;
     }
 
-    // Function to toggle transparency for the next non-transparent bullet of the specified type
-    function toggleTransparency(type) {
-        const elements = document.querySelectorAll(`.${type}:not(.transparent)`);
-        if (elements.length > 0) {
-            elements[0].classList.add('transparent'); // Make the first non-transparent bullet transparent
-        }
-    }
-
-    // Function to shuffle an array (for random bullet placement)
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    // Function to update the chamber display with colored circles
+    // Function to update the chamber display with colored circles and indicators
     function updateChamberDisplay() {
         const chamberContainer = document.getElementById('chamber-container');
-        chamberContainer.innerHTML = '';
+        chamberContainer.innerHTML = '';  // Clear current display
         
         for (let i = 0; i < chamber.length; i++) {
+            // Create bullet element
             const chamberElement = document.createElement('div');
             chamberElement.classList.add('chamber', chamber[i] === 1 ? 'live' : 'blank');
-            if (shotsFired.some(shot => shot.chamber === i + 1)) {
-                chamberElement.classList.add('transparent');
-            }
-            chamberContainer.appendChild(chamberElement);
+            
+            // Create indicator below each bullet
+            const indicator = document.createElement('div');
+            indicator.classList.add('indicator', 'white'); // Start with white color
+            indicator.addEventListener('click', () => cycleIndicatorColor(indicator));
+
+            // Container for bullet and indicator
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+
+            container.appendChild(chamberElement);
+            container.appendChild(indicator);
+            chamberContainer.appendChild(container);
+        }
+    }
+
+    // Function to cycle indicator colors in the order: white -> red -> blue -> white
+    function cycleIndicatorColor(indicator) {
+        if (indicator.classList.contains('white')) {
+            indicator.classList.remove('white');
+            indicator.classList.add('red');
+        } else if (indicator.classList.contains('red')) {
+            indicator.classList.remove('red');
+            indicator.classList.add('blue');
+        } else if (indicator.classList.contains('blue')) {
+            indicator.classList.remove('blue');
+            indicator.classList.add('white');
         }
     }
 
