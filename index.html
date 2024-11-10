@@ -3,92 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buckshot Roulette Tracker</title>
+    <title>Buckshot Roulette</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
-            padding: 20px;
+            padding: 10px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         h1 {
             text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        .language-select {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1rem;
         }
         .game-info, .turn-info {
-            margin: 20px 0;
+            width: 100%;
+            max-width: 400px;
+            margin: 10px 0;
             padding: 10px;
             background-color: #e3e3e3;
             border-radius: 5px;
+            font-size: 1rem;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-        .chamber-container {
+        .bullet-selection {
             display: flex;
             justify-content: center;
-            margin-top: 20px;
+            align-items: center;
+            gap: 2px;
+            margin-bottom: 15px;
         }
-        .chamber {
-            width: 50px;
-            height: 50px;
-            margin: 0 10px;
+        .circle {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        .blank {
-            background-color: blue;
+        .circle.red { background-color: red; }
+        .circle.blue { background-color: blue; }
+        .selected {
+            transform: scale(1.2);
+            border: 3px solid #000;
         }
-        .live {
-            background-color: red;
+        .result-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 10px;
+        }
+        .result-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+        .result-circle.red { background-color: red; }
+        .result-circle.blue { background-color: blue; }
+        .chamber-container {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 10px;
+        }
+        .chamber {
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .indicator {
-            width: 50px; /* Matching bullet size */
-            height: 50px; /* Matching bullet size */
-            margin-top: 20px; /* Increased separation */
+            width: 30px;
+            height: 30px;
+            margin-top: 10px;
             border-radius: 50%;
             cursor: pointer;
             border: 1px solid #ccc;
         }
-        .indicator.white {
-            background-color: white;
+        .indicator.white { background-color: white; }
+        .indicator.red { background-color: red; }
+        .indicator.blue { background-color: blue; }
+
+        /* "Start Game" button styles */
+        #start-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
         }
-        .indicator.red {
-            background-color: red;
-        }
-        .indicator.blue {
-            background-color: blue;
+
+        /* Responsive Styles for Landscape Mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                padding: 5px;
+            }
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+            }
+            .language-select {
+                font-size: 0.9rem;
+            }
+            .game-info, .turn-info {
+                font-size: 0.9rem;
+            }
+            .circle {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            .chamber {
+                width: 35px;
+                height: 35px;
+            }
+            .indicator {
+                width: 25px;
+                height: 25px;
+            }
+            .result-circle {
+                width: 25px;
+                height: 25px;
+            }
         }
     </style>
 </head>
 <body>
 
-<h1>Buckshot Roulette</h1>
+<!-- Language Selection Dropdown -->
+<div class="language-select">
+    <select id="language" onchange="setLanguage()">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="ru">Русский</option>
+    </select>
+</div>
+
+<h1 id="title">Buckshot Roulette</h1>
 
 <!-- Game Setup -->
 <div class="game-info">
-    <label for="live-bullets">Enter number of live bullets (1-9): </label>
-    <input type="number" id="live-bullets" value="1" min="1" max="9">
-    <br><br>
-    <label for="blank-bullets">Enter number of blank bullets (1-9): </label>
-    <input type="number" id="blank-bullets" value="1" min="1" max="9">
-    <br><br>
+    <div id="live-label">Select number of live bullets:</div>
+    <div class="bullet-selection" id="live-bullets">
+        <!-- Live bullet circles will be dynamically added here -->
+    </div>
+    <br>
+    <div id="blank-label">Select number of blank bullets:</div>
+    <div class="bullet-selection" id="blank-bullets">
+        <!-- Blank bullet circles will be dynamically added here -->
+    </div>
+    <br>
     <p id="bullet-info">Total bullets: 2 - 10 (Live + Blank)</p>
     <br>
-    <button onclick="startGame()">Start Game</button>
+    <button id="start-btn" onclick="startGame()">Start Game</button>
 </div>
 
-<!-- Game Status -->
-<div class="turn-info">
-    <p id="round-info">Please start the game by selecting live and blank bullets.</p>
+<!-- Result Display -->
+<div class="result-container" id="result-display">
+    <!-- Bullet result indicators will be dynamically added here -->
 </div>
 
 <!-- Bullet Representation -->
@@ -97,57 +189,122 @@
 </div>
 
 <script>
-    let liveBullets, blankBullets, chamber;
+    let liveBullets = 1, blankBullets = 1, chamber;
+    const translations = {
+        en: {
+            title: "Buckshot Roulette",
+            liveLabel: "Select number of live bullets:",
+            blankLabel: "Select number of blank bullets:",
+            bulletInfo: "Total bullets: 2 - 10 (Live + Blank)",
+            startBtn: "Start Game",
+            roundInfo: "Please start the game by selecting live and blank bullets."
+        },
+        es: {
+            title: "Ruleta Buckshot",
+            liveLabel: "Seleccione el número de balas cargadas:",
+            blankLabel: "Seleccione el número de balas de fogueo:",
+            bulletInfo: "Total de balas: 2 - 10 (Cargadas + Fogueo)",
+            startBtn: "Iniciar Juego",
+            roundInfo: "Por favor, inicie el juego seleccionando balas cargadas y de fogueo."
+        },
+        ru: {
+            title: "Бакшот Рулетка",
+            liveLabel: "Выберите количество боевых патронов:",
+            blankLabel: "Выберите количество холостых патронов:",
+            bulletInfo: "Общее количество патронов: 2 - 10 (Боевые + Холостые)",
+            startBtn: "Начать Игру",
+            roundInfo: "Пожалуйста, начните игру, выбрав боевые и холостые патроны."
+        }
+    };
 
-    // Function to initialize and start the game
+    function setLanguage() {
+        const lang = document.getElementById('language').value;
+        document.getElementById('title').textContent = translations[lang].title;
+        document.getElementById('live-label').textContent = translations[lang].liveLabel;
+        document.getElementById('blank-label').textContent = translations[lang].blankLabel;
+        document.getElementById('bullet-info').textContent = translations[lang].bulletInfo;
+        document.getElementById('start-btn').textContent = translations[lang].startBtn;
+        document.getElementById('round-info').textContent = translations[lang].roundInfo;
+    }
+
     function startGame() {
-        liveBullets = parseInt(document.getElementById('live-bullets').value);
-        blankBullets = parseInt(document.getElementById('blank-bullets').value);
-        
         const totalBullets = liveBullets + blankBullets;
-        
-        if (totalBullets < 2 || totalBullets > 10 || liveBullets < 1 || blankBullets < 1) {
+        if (totalBullets < 2 || totalBullets > 10) {
             alert("Total bullets must be between 2 and 10. Ensure you have at least one live bullet and one blank bullet.");
             return;
         }
 
-        // Reset and fill chamber with ordered bullets (red first, then blue)
         chamber = [];
-        for (let i = 0; i < liveBullets; i++) chamber.push(1); // Red bullets
-        for (let i = 0; i < blankBullets; i++) chamber.push(0); // Blue bullets
+        for (let i = 0; i < liveBullets; i++) chamber.push(1);
+        for (let i = 0; i < blankBullets; i++) chamber.push(0);
         
         updateChamberDisplay();
-        document.getElementById('round-info').textContent = `Game started! Click indicators to change their colors.`;
+        updateResultDisplay();
+        document.getElementById('round-info').textContent = translations[document.getElementById('language').value].roundInfo;
     }
 
-    // Function to update the chamber display with colored circles and indicators
     function updateChamberDisplay() {
         const chamberContainer = document.getElementById('chamber-container');
-        chamberContainer.innerHTML = '';  // Clear current display
+        chamberContainer.innerHTML = '';  
         
         for (let i = 0; i < chamber.length; i++) {
-            // Create bullet element
             const chamberElement = document.createElement('div');
             chamberElement.classList.add('chamber', chamber[i] === 1 ? 'live' : 'blank');
             
-            // Create indicator below each bullet
             const indicator = document.createElement('div');
-            indicator.classList.add('indicator', 'white'); // Start with white color
-            indicator.addEventListener('click', () => cycleIndicatorColor(indicator));
+            indicator.classList.add('indicator', 'white');
+            indicator.onclick = () => cycleIndicatorColor(indicator);
 
-            // Container for bullet and indicator
-            const container = document.createElement('div');
-            container.style.display = 'flex';
-            container.style.flexDirection = 'column';
-            container.style.alignItems = 'center';
-
-            container.appendChild(chamberElement);
-            container.appendChild(indicator);
-            chamberContainer.appendChild(container);
+            chamberContainer.appendChild(chamberElement);
+            chamberContainer.appendChild(indicator);
         }
     }
 
-    // Function to cycle indicator colors in the order: white -> red -> blue -> white
+    function updateResultDisplay() {
+        const resultDisplay = document.getElementById('result-display');
+        resultDisplay.innerHTML = '';
+        
+        for (let i = 0; i < liveBullets; i++) {
+            const resultCircle = document.createElement('div');
+            resultCircle.classList.add('result-circle', 'red');
+            resultDisplay.appendChild(resultCircle);
+        }
+        for (let i = 0; i < blankBullets; i++) {
+            const resultCircle = document.createElement('div');
+            resultCircle.classList.add('result-circle', 'blue');
+            resultDisplay.appendChild(resultCircle);
+        }
+    }
+
+    function createBulletSelectionCircles(type) {
+        const bulletContainer = document.getElementById(type + '-bullets');
+        bulletContainer.innerHTML = '';
+        
+        for (let i = 1; i <= 5; i++) {
+            const circle = document.createElement('div');
+            circle.classList.add('circle', type === 'live' ? 'red' : 'blue');
+            circle.textContent = i;
+            circle.addEventListener('click', () => setBulletCount(type, i));
+            if ((type === 'live' && i === liveBullets) || (type === 'blank' && i === blankBullets)) {
+                circle.classList.add('selected');
+            }
+            bulletContainer.appendChild(circle);
+        }
+    }
+
+    function setBulletCount(type, count) {
+        if (type === 'live') liveBullets = count;
+        else blankBullets = count;
+        createBulletSelectionCircles('live');
+        createBulletSelectionCircles('blank');
+        updateBulletInfo();
+    }
+
+    function updateBulletInfo() {
+        const totalBullets = liveBullets + blankBullets;
+        document.getElementById('bullet-info').textContent = `Total bullets: ${totalBullets} (Live + Blank)`;
+    }
+
     function cycleIndicatorColor(indicator) {
         if (indicator.classList.contains('white')) {
             indicator.classList.remove('white');
@@ -161,25 +318,9 @@
         }
     }
 
-    // Function to update the total bullet count info
-    function updateBulletInfo() {
-        const liveBulletsInput = document.getElementById('live-bullets');
-        const blankBulletsInput = document.getElementById('blank-bullets');
-        const totalBullets = parseInt(liveBulletsInput.value) + parseInt(blankBulletsInput.value);
-        const bulletInfo = document.getElementById('bullet-info');
-        
-        if (totalBullets < 2 || totalBullets > 10) {
-            bulletInfo.style.color = "red";
-            bulletInfo.textContent = "Total bullets must be between 2 and 10!";
-        } else {
-            bulletInfo.style.color = "black";
-            bulletInfo.textContent = `Total bullets: ${totalBullets} (Live + Blank)`;
-        }
-    }
-
-    document.getElementById('live-bullets').addEventListener('input', updateBulletInfo);
-    document.getElementById('blank-bullets').addEventListener('input', updateBulletInfo);
-    updateBulletInfo();
+    createBulletSelectionCircles('live');
+    createBulletSelectionCircles('blank');
+    setLanguage();
 </script>
 
 </body>
